@@ -79,3 +79,284 @@ findOne() accepts a query object. If left empty, it will return the first docume
 ```mongodb
 db.test.findOne()
 ```
+
+# projection
+find() and findOne() accept an second parameter as projection that describes which fields to include in the results
+```mongodb
+db.posts.find({}, {title: 1, date: 1})
+```
+
+The _id field is also included by default unless specifically excluded.
+```mongodb
+db.posts.find({}, {_id: 0, title: 1, date: 1})
+```
+
+You cannot use both 0 and 1 in the same object. The only exception is the _id field. You should either specify the fields you would like to include or the fields you would like to exclude.
+```mongodb
+db.posts.find({}, {category: 0})
+```
+
+# Update Document
+with updateOne() and updateMany()
+`$set` changes fields
+```mongodb
+db.posts.find( { title: "Post Title 1" } ) 
+db.posts.updateOne( { title: "Post Title 1" }, { $set: { likes: 2 } } ) 
+db.posts.find( { title: "Post Title 1" } ) 
+```
+
+insert if not exists with `upsert` option
+```mongodb
+db.posts.updateOne( 
+  { title: "Post Title 5" }, 
+  {
+    $set: 
+      {
+        title: "Post Title 5",
+        body: "Body of post.",
+        category: "Event",
+        likes: 5,
+        tags: ["news", "events"],
+        date: Date()
+      }
+  }, 
+  { upsert: true }
+)
+```
+
+increment a nummerical field using `$inc`
+
+```mongodb
+db.posts.updateMany({}, { $inc: { likes: 1 } })
+```
+
+
+# Delete Documents
+deleteOne() and deleteMany()
+```mongodb
+db.posts.deleteOne({ title: "Post Title 5" })
+db.posts.deleteMany({ category: "Technology" })
+```
+
+# query operators
+**Comparison**
+`$eq` Values are equal
+`$ne` Values are not equal
+`$gt` Value is greater than another value
+`$gte` Value is greater than or equal to another value
+`$lt` Value is less than another value
+`$lte` Value is less than or equal to another value
+`$in` Value is matched within an array
+
+**Logical**
+`$and` Returns documents where both queries match
+`$or` Returns documents where either query matches
+`$nor` Returns documents where both queries fail to match
+`$not` Returns documents where the query does not match
+
+**Evaluation**
+`$regex` Allows the use of regular expressions when evaluating field values
+`$text` Performs a text search
+`$where` Uses a JavaScript expression to match documents
+
+# Update Operators
+**Fields**
+`$currentDate` Sets the field value to the current date
+`$inc` Increments the field value
+`$rename` Renames the field
+`$set` Sets the value of a field
+`$unset` Removes the field from the document
+
+**Array**
+`$addToSet` Adds distinct elements to an array
+`$pop` Removes the first or last element of an array
+`$pull` Removes all elements from an array that match the query
+`$push` Adds an element to an array
+
+
+
+# Aggregation Pipelines
+Aggregation operations allow you to group, sort, perform calculations, analyze data, and much more.
+Aggregation pipelines can have one or more "stages". The order of these stages are important. Each stage acts upon the results of the previous stage.
+
+```mongodb
+db.posts.aggregate([
+  // Stage 1: Only find documents that have more than 1 like
+  {
+    $match: { likes: { $gt: 1 } }
+  },
+  // Stage 2: Group documents by category and sum each categories likes
+  {
+    $group: { _id: "$category", totalLikes: { $sum: "$likes" } }
+  }
+])
+```
+
+### Aggregation $group
+This aggregation stage groups documents by the unique _id expression provided.
+Don't confuse this _id expression with the _id ObjectId provided to each document.
+```mongodb
+db.listingsAndReviews.aggregate(
+    [ { $group : { _id : "$property_type" } } ]
+)
+```
+This will return the distinct values from the property_type field.
+
+### Aggregation $limit
+This aggregation stage limits the number of documents passed to the next stage.
+```mongodb
+db.movies.aggregate([ { $limit: 1 } ])
+```
+
+### Aggregation $project
+```mongodb
+db.restaurants.aggregate([
+  {
+    $project: {
+      "name": 1,
+      "cuisine": 1,
+      "address": 1
+    }
+  },
+  {
+    $limit: 5
+  }
+])
+```
+
+
+### Aggregation $sort
+The sort order can be chosen by using 1 or -1. 1 is ascending and -1 is descending.
+```mongodb
+db.listingsAndReviews.aggregate([ 
+  { 
+    $sort: { "accommodates": -1 } 
+  },
+  {
+    $project: {
+      "name": 1,
+      "accommodates": 1
+    }
+  },
+  {
+    $limit: 5
+  }
+])
+```
+
+
+### Aggregation $match
+This aggregation stage behaves like a find. It will filter documents that match the query provided. 
+Using $match early in the pipeline can improve performance since it limits the number of documents the next stages must process.
+```mongodb
+db.listingsAndReviews.aggregate([ 
+  { $match : { property_type : "House" } },
+  { $limit: 2 },
+  { $project: {
+    "name": 1,
+    "bedrooms": 1,
+    "price": 1
+  }}
+])
+```
+
+### Aggregation $addFields
+This aggregation stage adds new fields to documents
+```mongodb
+db.restaurants.aggregate([
+  {
+    $addFields: {
+      avgGrade: { $avg: "$grades.score" }
+    }
+  },
+  {
+    $project: {
+      "name": 1,
+      "avgGrade": 1
+    }
+  },
+  {
+    $limit: 5
+  }
+])
+```
+
+### Aggregation $count
+This aggregation stage adds new fields to documents
+```mongodb
+db.restaurants.aggregate([
+  {
+    $match: { "cuisine": "Chinese" }
+  },
+  {
+    $count: "totalChinese"
+  }
+])
+```
+
+### Aggregation $lookup
+This aggregation stage performs a left outer join to a collection in the same database.
+There are four required fields:
+`from` The collection to use for lookup in the same database
+`localField` The field in the primary collection that can be used as a unique identifier in the from collection.
+`foreignField` The field in the from collection that can be used as a unique identifier in the primary collection.
+`as` The name of the new field that will contain the matching documents from the from collection.
+```mongodb
+db.comments.aggregate([
+  {
+    $lookup: {
+      from: "movies",
+      localField: "movie_id",
+      foreignField: "_id",
+      as: "movie_details",
+    },
+  },
+  {
+    $limit: 1
+  }
+])
+```
+
+
+### Aggregation out
+This aggregation stage writes the returned documents from the aggregation pipeline to a collection. 
+```mongodb
+db.listingsAndReviews.aggregate([
+  {
+    $group: {
+      _id: "$property_type",
+      properties: {
+        $push: {
+          name: "$name",
+          accommodates: "$accommodates",
+          price: "$price",
+        },
+      },
+    },
+  },
+  { $out: "properties_by_type" },
+])
+```
+
+
+# Indexing & Search
+```mongodb
+db.movies.aggregate([
+  {
+    $search: {
+      index: "default", // optional unless you named your index something other than "default"
+      text: {
+        query: "star wars",
+        path: "title"
+      },
+    },
+  },
+  {
+    $project: {
+      title: 1,
+      year: 1,
+    }
+  }
+])
+```
+
