@@ -148,11 +148,20 @@ db.posts.deleteMany({ category: "Technology" })
 `$lte` Value is less than or equal to another value
 `$in` Value is matched within an array
 
+```mongodb
+db.myData.find({x:{$gt:25}})
+db.myData.find({x:{$in:[25,2,7,10]}})
+```
+
 **Logical**
 `$and` Returns documents where both queries match
 `$or` Returns documents where either query matches
 `$nor` Returns documents where both queries fail to match
 `$not` Returns documents where the query does not match
+
+```mongodb
+db.myData.find({$and:[{x:{$in:[25,2,7,10]}}, {y:50}]})
+```
 
 **Evaluation**
 `$regex` Allows the use of regular expressions when evaluating field values
@@ -359,4 +368,130 @@ db.movies.aggregate([
   }
 ])
 ```
+
+# Schema Validation
+```mongodb
+db.createCollection("posts", {
+  validator: {
+    $jsonSchema: {
+      bsonType: "object",
+      required: [ "title", "body" ],
+      properties: {
+        title: {
+          bsonType: "string",
+          description: "Title of post - Required."
+        },
+        body: {
+          bsonType: "string",
+          description: "Body of post - Required."
+        },
+        category: {
+          bsonType: "string",
+          description: "Category of post - Optional."
+        },
+        likes: {
+          bsonType: "int",
+          description: "Post like count. Must be an integer - Optional."
+        },
+        tags: {
+          bsonType: ["string"],
+          description: "Must be an array of strings - Optional."
+        },
+        date: {
+          bsonType: "date",
+          description: "Must be a date - Optional."
+        }
+      }
+    }
+  }
+})
+
+```
+
+
+
+
+# mongodb data API
+```mongodb
+https://data.mongodb-api.com/app/<Data API App ID>/endpoint/data/v1/action/
+
+https://data.mongodb-api.com/app/<Data API App ID>/endpoint/data/v1/action/findOne
+{
+  "dataSource": "<data source name>",
+  "database": "<database name>",
+  "collection": "<collection name>",
+  "filter": <query filter>,
+  "projection": <projection>
+}
+```
+```mongodb
+curl --location --request POST 'https://data.mongodb-api.com/app/<DATA API APP ID>/endpoint/data/v1/action/findOne' \
+--header 'Content-Type: application/json' \
+--header 'Access-Control-Request-Headers: *' \
+--header 'api-key: <DATA API KEY>' \
+--data-raw '{
+    "dataSource":"<CLUSTER NAME>",
+    "database":"sample_mflix",
+    "collection":"movies",
+    "projection": {"title": 1}
+}'
+```
+
+
+
+# mongodb and NodeJS
+```
+npm install mongodb
+```
+
+```js
+const { MongoClient } = require('mongodb');
+const uri = "mongodb+srv://<username>:<password>@<cluster.string>.mongodb.net/myFirstDatabase?retryWrites=true&w=majority";
+const client = new MongoClient(uri);
+
+async function run() {
+  try {
+    await client.connect();
+    const db = client.db('sample_mflix');
+    const collection = db.collection('movies');
+
+    // Find the first document in the collection
+    const first = await collection.findOne();
+    console.log(first);
+  } finally {
+    // Close the database connection when finished or an error occurs
+    await client.close();
+  }
+}
+run().catch(console.error);
+
+```
+
+
+# sort and limit and offset
+```mongodb
+db.myData.find().sort({x:-1}).limit(10);
+db.myData.find().sort({x:-1}).limit(10).skip(10)
+
+```
+
+
+# use JS in mongodb shell
+```mongodb
+use('login')
+for(i=0 ; i<10000; i++) {
+    db.myData.insert({x:i, y:2*i})
+}
+db.myData.count()
+```
+
+# drop collection
+```mongodb
+db.myData.drop();
+```
+
+
+
+
+
 
