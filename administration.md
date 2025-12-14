@@ -1,7 +1,7 @@
 
 
 # setup on ubuntu
-```js
+```sh
 sudo apt update
 sudo apt install gnupg -y
 wget -qO - https://www.mongodb.org/static/pgp/server-5.0.asc | sudo apt-key add -
