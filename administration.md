@@ -10,7 +10,7 @@ sudo apt update
 sudo apt install mongodb-org -y
 
 cat /etc/mongod.conf
-
+```
 
 # Install from urls
 ```sh
