@@ -53,6 +53,13 @@ db.myData.getIndexes()
 # users
 ```mongodb
 use admin
+
+show users
+db.getUsers()
+db.dropAllUsers()
+db.dropUser("username")
+
+
 db.createUser({user: "moj1", pwd: "mojpass", roles: [{role: "read", db: "login"}]})
 db.createUser({user: "root", pwd: "rootpass", roles:[{role: "root", db: "admin"}]})
 
@@ -66,6 +73,19 @@ db.createUser({ user: "reader", pwd: "secretpass", roles: [{ role: "myReadOnlyRo
 db.grantPrivilegesToRole("myReadOnlyRole", [{ resource: { db : "mytest", collection : "col1"}, actions : ["find"] }])
 // get user roles
 db.getRole("myReadOnlyRole", { showPrivileges : true })
+
+
+// full access user
+db.createUser({
+  user: "admin",
+  pwd: "StrongPasswordHere",
+  roles: [
+    { role: "userAdminAnyDatabase", db: "admin" },
+    { role: "dbAdminAnyDatabase", db: "admin" },
+    { role: "readWriteAnyDatabase", db: "admin" }
+  ]
+})
+
 ```
 
 /etc/mongod.conf
