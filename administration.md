@@ -51,7 +51,7 @@ db.myData.getIndexes()
 
 
 # users
-```mongodb
+```js
 use admin
 
 show users
@@ -62,6 +62,27 @@ db.dropUser("username")
 
 db.createUser({user: "moj1", pwd: "mojpass", roles: [{role: "read", db: "login"}]})
 db.createUser({user: "root", pwd: "rootpass", roles:[{role: "root", db: "admin"}]})
+
+// full access user
+db.createUser({
+  user: "admin",
+  pwd: "StrongPasswordHere",
+  roles: [
+    { role: "userAdminAnyDatabase", db: "admin" },
+    { role: "dbAdminAnyDatabase", db: "admin" },
+    { role: "readWriteAnyDatabase", db: "admin" }
+  ]
+})
+
+// readonly user on some dbs
+db.createUser({
+  user: "user-svc",
+  pwd: "StrongPasswordHere",
+  roles: [
+    { role: "read", db: "db1" },
+    { role: "read", db: "db2" }
+  ]
+})
 
 // roles
 db.createRole({ role: "myReadOnlyRole", privileges: [{ resource: { db: "mytest", collection: "col2"}, actions: ["find"]}], roles: []})
@@ -74,17 +95,6 @@ db.grantPrivilegesToRole("myReadOnlyRole", [{ resource: { db : "mytest", collect
 // get user roles
 db.getRole("myReadOnlyRole", { showPrivileges : true })
 
-
-// full access user
-db.createUser({
-  user: "admin",
-  pwd: "StrongPasswordHere",
-  roles: [
-    { role: "userAdminAnyDatabase", db: "admin" },
-    { role: "dbAdminAnyDatabase", db: "admin" },
-    { role: "readWriteAnyDatabase", db: "admin" }
-  ]
-})
 
 ```
 
