@@ -11,6 +11,13 @@ sudo apt install mongodb-org -y
 
 cat /etc/mongod.conf
 
+
+# Install from urls
+```sh
+wget https://repo.mongodb.org/apt/ubuntu/dists/noble/mongodb-org/8.2/multiverse/binary-amd64/mongodb-org-server_8.2.2_amd64.deb
+wget https://downloads.mongodb.com/compass/mongodb-mongosh_2.5.10_amd64.deb
+wget https://fastdl.mongodb.org/tools/db/mongodb-database-tools-ubuntu2404-x86_64-100.13.0.deb
+sudo apt install ./*.deb
 ```
 
 
