@@ -1,7 +1,7 @@
 
 
 # setup on ubuntu
-```mongodb
+```js
 sudo apt update
 sudo apt install gnupg -y
 wget -qO - https://www.mongodb.org/static/pgp/server-5.0.asc | sudo apt-key add -
@@ -16,19 +16,19 @@ cat /etc/mongod.conf
 
 
 # connect to server
-```mongodb
+```js
 mongosh admin
 ```
 
 # server status
-```mongodb
+```js
 db.serverStatus()
 db.serverStatus().storageEngine.name
 ```
 
 # dump data and restore
 `mongodump` and `mongorestore` by default use ./dump directory
-```mongodb
+```js
 mongodump
 mongodump -d login -c myData
 mongorestore
@@ -39,12 +39,12 @@ mongodump --host mongodb.example.com --port 27017 -u <mongouser> --authenticatio
 
 
 # explain queries
-```mongodb
+```js
 db.myData.find({$and:[{x:{$in:[25,2,7,10]}}]}).explain()
 ```
 
 # index
-```mongodb
+```js
 db.myData.createIndex({x:1})
 db.myData.getIndexes()
 ```
