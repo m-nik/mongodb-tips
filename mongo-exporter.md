@@ -8,7 +8,7 @@ mongodb_exporter --version
 ```
 
 # Create user
-```json
+```mongodb
 use admin
 db.createUser({
   user: "exporter",
