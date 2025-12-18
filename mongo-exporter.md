@@ -20,3 +20,8 @@ db.createUser({
 })
 ```
 
+# Test
+```
+mongodb_exporter --mongodb.uri="mongodb://exporter:password@127.0.0.1:27017/admin" --web.listen-address="0.0.0.0:9216" &
+curl 127.0.0.1:9216/metrics
+```
