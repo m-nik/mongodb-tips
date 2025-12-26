@@ -28,3 +28,8 @@ db.createUser({
 mongodb_exporter --mongodb.uri="mongodb://exporter:password@127.0.0.1:27017/admin" --web.listen-address="0.0.0.0:9216" &
 curl 127.0.0.1:9216/metrics
 ```
+
+
+# Grafana Dashboard
+https://grafana.com/grafana/dashboards/20867-mongodb-dashboard/
+ID: 20867
