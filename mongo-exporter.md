@@ -3,8 +3,8 @@ https://github.com/percona/mongodb_exporter
 ```sh
 wget https://github.com/percona/mongodb_exporter/releases/download/v0.47.2/mongodb_exporter-0.47.2.linux-64-bit.deb
 sudo apt install ./mongodb_exporter-0.47.2.linux-64-bit.deb
-echo "MONGODB_URI=\"mongodb://exporter:password@127.0.0.1:27017/admin\"
-OPTIONS=--collect-all" > /etc/default/mongodb_exporter
+sudo sh -c 'echo "MONGODB_URI=\"mongodb://exporter:password@127.0.0.1:27017/admin\"
+OPTIONS=--collect-all" > /etc/default/mongodb_exporter'
 
 sudo systemctl start --now mongodb_exporter.service 
 systemctl status mongodb_exporter.service
